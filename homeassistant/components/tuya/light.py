@@ -62,6 +62,9 @@ class TuyaLightEntityDescription(LightEntityDescription):
     default_color_type: ColorTypeData = field(
         default_factory=lambda: DEFAULT_COLOR_TYPE_DATA
     )
+    motor_speed: DPCode | None = None
+    laser_switch: DPCode | None = None
+    rgb_switch: DPCode | None = None
 
 
 LIGHTS: dict[str, tuple[TuyaLightEntityDescription, ...]] = {
@@ -105,7 +108,7 @@ LIGHTS: dict[str, tuple[TuyaLightEntityDescription, ...]] = {
             color_mode=DPCode.WORK_MODE,
             brightness=(DPCode.BRIGHT_VALUE_V2, DPCode.BRIGHT_VALUE),
             color_temp=(DPCode.TEMP_VALUE_V2, DPCode.TEMP_VALUE),
-            color_data=(DPCode.COLOUR_DATA_V2, DPCode.COLOUR_DATA),
+            color_data=(DPCode.COLOUR_DATA_V2, DPCode.COLOUR_DATA)     
         ),
         # Not documented
         # Based on multiple reports: manufacturer customized Dimmer 2 switches
@@ -113,6 +116,17 @@ LIGHTS: dict[str, tuple[TuyaLightEntityDescription, ...]] = {
             key=DPCode.SWITCH_1,
             name="Light",
             brightness=DPCode.BRIGHT_VALUE_1,
+        ),
+        # Not documented
+        # Smart StarProjector
+        TuyaLightEntityDescription(
+            key=DPCode.SWITCH_LED,
+            color_mode=DPCode.WORK_MODE,
+            brightness=DPCode.BRIGHT_VALUE,
+            color_data=DPCode.COLOUR_DATA,
+            motor_speed=DPCode.MOTOR_SPEED,
+            laser_switch=DPCode.LASTER_SWITCH,
+            rgb_switch=DPCode.RGB_SWITCH
         ),
     ),
     # Ceiling Fan Light
@@ -404,7 +418,8 @@ class TuyaLightEntity(TuyaEntity, LightEntity):
     _color_data_type: ColorTypeData | None = None
     _color_mode: DPCode | None = None
     _color_temp: IntegerTypeData | None = None
-
+    _motor_speed: IntegerTypeData | None = None
+        
     def __init__(
         self,
         device: TuyaDevice,
